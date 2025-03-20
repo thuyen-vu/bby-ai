@@ -1,0 +1,112 @@
+/* Gallery Container */
+.gallery-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 48rem; /* 3xl tailwind equivalent */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Gallery Slider */
+.gallery-slider {
+  position: relative;
+  width: 100%;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Images Container */
+.images-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  overflow: hidden;
+}
+
+/* Image Wrapper */
+.image-wrapper {
+  transition: all 0.3s;
+}
+
+/* Image positions */
+.image-wrapper.center {
+  width: 10rem; /* 40 in tailwind */
+  height: 10rem; /* 40 in tailwind */
+  z-index: 10;
+}
+
+.image-wrapper.left,
+.image-wrapper.right {
+  width: 8rem; /* 32 in tailwind */
+  height: 8rem; /* 32 in tailwind */
+  opacity: 0.7;
+}
+
+/* Gallery Image */
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Navigation Buttons */
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 9999px;
+}
+
+.prev-button {
+  left: 0;
+}
+
+.next-button {
+  right: 0;
+}
+
+/* Month Navigation */
+.month-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Month Button */
+.month-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 9999px;
+  background-color: #e5e7eb; /* gray-200 */
+  transition: background-color 0.2s;
+}
+
+.month-button:hover {
+  background-color: #d1d5db; /* gray-300 */
+}
+
+.month-button.active {
+  background-color: #2563eb; /* blue-600 */
+  color: white;
+}
+
+/* Loading and empty states */
+.loading-message,
+.empty-message {
+  text-align: center;
+  padding: 2rem;
+}
