@@ -1,112 +1,116 @@
-/* Gallery Container */
 .gallery-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 48rem; /* 3xl tailwind equivalent */
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Gallery Slider */
 .gallery-slider {
   position: relative;
-  width: 100%;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+  margin-bottom: 30px;
 }
 
-/* Images Container */
-.images-container {
+.mySwiper {
+  width: 100%;
+  padding: 50px 0;
+}
+
+/* Swiper slide styling */
+.swiper-slide {
+  transition: all 0.3s ease;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.75rem;
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
-  overflow: hidden;
 }
 
-/* Image Wrapper */
-.image-wrapper {
-  transition: all 0.3s;
+.swiper-slide .image-wrapper {
+  transition: all 0.3s ease;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px; /* Default height container */
 }
 
-/* Image positions */
-.image-wrapper.center {
-  width: 10rem; /* 40 in tailwind */
-  height: 10rem; /* 40 in tailwind */
-  z-index: 10;
+/* Active and adjacent slide styles */
+.swiper-slide .image-wrapper.active {
+  transform: scale(1.3);
+  z-index: 2;
 }
 
-.image-wrapper.left,
-.image-wrapper.right {
-  width: 8rem; /* 32 in tailwind */
-  height: 8rem; /* 32 in tailwind */
+.swiper-slide .image-wrapper.adjacent {
+  transform: scale(0.8);
   opacity: 0.7;
 }
 
-/* Gallery Image */
+/* Base image styling */
 .gallery-image {
-  width: 100%;
-  height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   object-fit: cover;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-height: 100%;
+  max-width: 100%;
 }
 
-/* Navigation Buttons */
-.nav-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: 0.5rem;
-  border-radius: 9999px;
+/* Horizontal image styling */
+.gallery-image.horizontal {
+  width: 100%;
+  height: auto;
+  max-height: 250px;
 }
 
-.prev-button {
-  left: 0;
+/* Vertical image styling */
+.gallery-image.vertical {
+  height: 100%;
+  width: auto;
+  max-width: 200px;
 }
 
-.next-button {
-  right: 0;
+/* Wrapper adjustments for active state based on orientation */
+.image-wrapper.active.horizontal .gallery-image {
+  max-height: 300px;
 }
 
-/* Month Navigation */
+.image-wrapper.active.vertical .gallery-image {
+  max-height: 350px;
+  max-width: 250px;
+}
+
+/* Month navigation */
 .month-navigation {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-/* Month Button */
 .month-button {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 9999px;
-  background-color: #e5e7eb; /* gray-200 */
-  transition: background-color 0.2s;
-}
-
-.month-button:hover {
-  background-color: #d1d5db; /* gray-300 */
+  padding: 8px 16px;
+  background-color: #eee;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .month-button.active {
-  background-color: #2563eb; /* blue-600 */
+  background-color: #007bff;
   color: white;
 }
 
-/* Loading and empty states */
+.month-button:hover {
+  background-color: #ddd;
+}
+
+.month-button.active:hover {
+  background-color: #0069d9;
+}
+
+/* Loading and error states */
 .loading-message,
 .empty-message {
   text-align: center;
-  padding: 2rem;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #555;
 }

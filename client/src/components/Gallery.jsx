@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { importAllImages } from "../utils/importImages";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode, Navigation } from "swiper/modules";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
 import "../styles/Gallery.css";
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
   const [monthIndices, setMonthIndices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [swiper, setSwiper] = useState(null);
+  const [activeMonthYear, setActiveMonthYear] = useState("");
+  const [imageOrientations, setImageOrientations] = useState({});
 
   useEffect(() => {
     // Load images when component mounts
@@ -14,6 +24,32 @@ const Gallery = () => {
         const { images, monthIndices } = importAllImages();
         setImages(images);
         setMonthIndices(monthIndices);
+
+        // Set initial active month/year
+        if (images.length > 0) {
+          setActiveMonthYear(images[0].monthYear);
+        }
+
+        // Preload images to determine orientation
+        const orientations = {};
+        const promises = images.map((image) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              orientations[image.src] =
+                img.width >= img.height ? "horizontal" : "vertical";
+              resolve();
+            };
+            img.onerror = () => {
+              orientations[image.src] = "horizontal"; // Default to horizontal on error
+              resolve();
+            };
+            img.src = image.src;
+          });
+        });
+
+        await Promise.all(promises);
+        setImageOrientations(orientations);
       } catch (error) {
         console.error("Error loading images:", error);
       } finally {
@@ -24,55 +60,13 @@ const Gallery = () => {
     loadImages();
   }, []);
 
-  // Current center image index - default to 0, only set if we have images
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Calculate which images to display based on current index
-  const getVisibleImages = () => {
-    if (images.length === 0) return [];
-
-    // For first image, we need special handling
-    if (currentIndex === 0) {
-      return [
-        { ...images[images.length - 1], position: "left" },
-        { ...images[currentIndex], position: "center" },
-        { ...images[currentIndex + 1], position: "right" },
-      ];
-    }
-    // For last image, we need special handling
-    else if (currentIndex === images.length - 1) {
-      return [
-        { ...images[currentIndex - 1], position: "left" },
-        { ...images[currentIndex], position: "center" },
-        { ...images[0], position: "right" },
-      ];
-    }
-    // Standard case
-    else {
-      return [
-        { ...images[currentIndex - 1], position: "left" },
-        { ...images[currentIndex], position: "center" },
-        { ...images[currentIndex + 1], position: "right" },
-      ];
-    }
-  };
-
-  // Handle navigation
-  const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
   // Handle month button click
-  const handleMonthClick = (index) => {
-    setCurrentIndex(index);
+  const handleMonthClick = (index, monthYear) => {
+    if (swiper) {
+      // No need for adjustment since we removed the loop mode
+      swiper.slideTo(index);
+      setActiveMonthYear(monthYear);
+    }
   };
 
   // If loading or no images, show loading state
@@ -84,46 +78,48 @@ const Gallery = () => {
     return <div className="empty-message">No images found</div>;
   }
 
-  const visibleImages = getVisibleImages();
-
-  const currentMonthYear = images[currentIndex]?.monthYear;
-
   return (
     <div className="gallery-container">
       {/* Gallery Container */}
       <div className="gallery-slider">
-        {/* Navigation Arrows */}
-        <button
-          onClick={handlePrev}
-          className="nav-button prev-button"
-          aria-label="Previous image"
+        <Swiper
+          onSwiper={setSwiper}
+          slidesPerView={3}
+          spaceBetween={30}
+          centeredSlides={true}
+          loop={false}
+          navigation={true}
+          modules={[FreeMode, Navigation]}
+          className="mySwiper"
+          initialSlide={0}
+          onSlideChange={(swiper) => {
+            // Since loop is disabled, we can directly use the active index
+            const activeIndex = swiper.activeIndex;
+            if (images[activeIndex]) {
+              setActiveMonthYear(images[activeIndex].monthYear);
+            }
+          }}
         >
-          ←
-        </button>
-
-        {/* Images Container */}
-        <div className="images-container">
-          {visibleImages.map((image) => (
-            <div
-              key={`${image.monthYear}-${image.position}`}
-              className={`image-wrapper ${image.position}`}
-            >
-              <img
-                src={image.src}
-                alt={`Month ${image.month}, Year ${image.year}`}
-                className="gallery-image"
-              />
-            </div>
+          {images.map((image, index) => (
+            <SwiperSlide key={`${image.monthYear}-${index}`}>
+              {({ isActive, isNext, isPrev }) => (
+                <div
+                  className={`image-wrapper ${
+                    isActive ? "active" : isNext || isPrev ? "adjacent" : ""
+                  } ${imageOrientations[image.src] || ""}`}
+                >
+                  <img
+                    src={image.src}
+                    alt={`Month ${image.month}, Year ${image.year}`}
+                    className={`gallery-image ${
+                      imageOrientations[image.src] || ""
+                    }`}
+                  />
+                </div>
+              )}
+            </SwiperSlide>
           ))}
-        </div>
-
-        <button
-          onClick={handleNext}
-          className="nav-button next-button"
-          aria-label="Next image"
-        >
-          →
-        </button>
+        </Swiper>
       </div>
 
       {/* Month Navigation Buttons */}
@@ -131,9 +127,11 @@ const Gallery = () => {
         {monthIndices.map((firstImageMonth) => (
           <button
             key={`${firstImageMonth.key}`}
-            onClick={() => handleMonthClick(firstImageMonth.index)}
+            onClick={() =>
+              handleMonthClick(firstImageMonth.index, firstImageMonth.key)
+            }
             className={`month-button ${
-              firstImageMonth.key === currentMonthYear ? "active" : ""
+              activeMonthYear === firstImageMonth.key ? "active" : ""
             }`}
           >
             {`${firstImageMonth.month}/${firstImageMonth.year}`}
